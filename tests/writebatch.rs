@@ -11,15 +11,15 @@ fn test_writebatch() {
     let tmp = tmpdir("writebatch");
     let database = &mut Database::open(tmp.path(), opts).unwrap();
     let batch = &mut Writebatch::new();
-    batch.put(1, &[1]);
-    batch.put(2, &[2]);
-    batch.delete(1);
+    batch.put(b"1", &[1]);
+    batch.put(b"2", &[2]);
+    batch.delete(b"1");
     let wopts = WriteOptions::new();
     let ack = database.write(wopts, batch);
     assert!(ack.is_ok());
 
     let read_opts = ReadOptions::new();
-    let res = database.get(read_opts, 2);
+    let res = database.get(read_opts, b"2");
 
     match res {
         Ok(data) => {
@@ -31,7 +31,7 @@ fn test_writebatch() {
     }
 
     let read_opts2 = ReadOptions::new();
-    let res2 = database.get(read_opts2, 1);
+    let res2 = database.get(read_opts2, b"1");
     match res2 {
         Ok(data) => { assert!(data.is_none()) },
         Err(_) => { panic!("failed reading data") }
@@ -44,16 +44,14 @@ struct Iter {
 }
 
 impl WritebatchIterator for Iter {
-    type K = i32;
-
     fn put(&mut self,
-           _key: i32,
+           _key: &[u8],
            _value: &[u8]) {
         self.put = self.put + 1;
     }
 
     fn deleted(&mut self,
-               _key: i32) {
+               _key: &[u8]) {
         self.deleted = self.deleted + 1;
     }
 }
@@ -65,9 +63,9 @@ fn test_writebatchiter() {
     let tmp = tmpdir("writebatch");
     let database = &mut Database::open(tmp.path(), opts).unwrap();
     let batch = &mut Writebatch::new();
-    batch.put(1, &[1]);
-    batch.put(2, &[2]);
-    batch.delete(1);
+    batch.put(b"1", &[1]);
+    batch.put(b"2", &[2]);
+    batch.delete(b"1");
 
     let wopts = WriteOptions::new();
     let ack = database.write(wopts, batch);

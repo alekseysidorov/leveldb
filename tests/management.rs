@@ -5,7 +5,7 @@ use utils::{open_database,tmpdir};
 #[test]
 fn test_destroy_database() {
     let tmp = tmpdir("destroy");
-    let database = open_database::<i32>(tmp.path(), true);
+    let database = open_database(tmp.path(), true);
     drop(database);
     let options = Options::new();
     let res = destroy(tmp.path(), options);
@@ -15,7 +15,7 @@ fn test_destroy_database() {
 #[test]
 fn test_repair_database() {
     let tmp = tmpdir("repair");
-    let database = open_database::<i32>(tmp.path(), true);
+    let database = open_database(tmp.path(), true);
     drop(database);
     let options = Options::new();
     let res = repair(tmp.path(), options);

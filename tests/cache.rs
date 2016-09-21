@@ -9,6 +9,6 @@ fn test_open_database_with_cache() {
   opts.create_if_missing = true;
   opts.cache = Some(Cache::new(20));
   let tmp = tmpdir("create_if_missing");
-  let res: Result<Database<i32>,_> = Database::open(tmp.path(), opts);
+  let res: Result<Database,_> = Database::open(tmp.path(), opts);
   assert!(res.is_ok());
 }

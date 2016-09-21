@@ -21,9 +21,8 @@ impl Error {
         use std::str::from_utf8;
         use std::ffi::CStr;
 
-        let err_string = unsafe {
-            from_utf8(CStr::from_ptr(message).to_bytes()).unwrap().to_string()
-        };
+        let err_string =
+            unsafe { from_utf8(CStr::from_ptr(message).to_bytes()).unwrap().to_string() };
         unsafe { free(message as *mut c_void) };
         Error::new(err_string)
     }

@@ -19,7 +19,7 @@ fn access_from_threads() {
 
          thread::spawn(move || {
              let write_opts = WriteOptions::new();
-             match local_db.put(write_opts, i, &[i as u8]) {
+             match local_db.put(write_opts, [i], &[i as u8]) {
                  Ok(_) => { },
                  Err(e) => { panic!("failed to write to database: {:?}", e) }
              }

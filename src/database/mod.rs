@@ -1,20 +1,17 @@
 //! The main database module, allowing to interface with leveldb on
 //! a key-value basis.
-extern crate db_key as key;
 
 use leveldb_sys::*;
 
 use self::options::{Options, c_options};
 use self::error::Error;
+
 use std::ffi::CString;
 
 use std::path::Path;
 
 use std::ptr;
 use comparator::{Comparator, create_comparator};
-use self::key::Key;
-
-use std::marker::PhantomData;
 
 pub mod options;
 pub mod error;
@@ -61,12 +58,12 @@ impl Drop for RawComparator {
 /// be passed when opening the database. This library ships with an Comparator
 /// implementation for keys that are `Ord`.
 ///
-/// When re-CString a database, you must use the same key type `K` and
+/// When re-`CString` a database, you must use the same key type &[u8] and
 /// comparator type `C`.
 ///
 /// Multiple Database objects can be kept around, as leveldb synchronises
 /// internally.
-pub struct Database<K: Key> {
+pub struct Database {
     database: RawDB,
     // this holds a reference passed into leveldb
     // it is never read from Rust, but must be kept around
@@ -76,17 +73,16 @@ pub struct Database<K: Key> {
     // and should survive as long as the database lives
     #[allow(dead_code)]
     options: Options,
-    marker: PhantomData<K>,
 }
 
-unsafe impl<K: Key> Sync for Database<K> {}
-unsafe impl<K: Key> Send for Database<K> {}
+unsafe impl Sync for Database {}
+unsafe impl Send for Database {}
 
-impl<K: Key> Database<K> {
+impl Database {
     fn new(database: *mut leveldb_t,
            options: Options,
            comparator: Option<*mut leveldb_comparator_t>)
-           -> Database<K> {
+           -> Database {
         let raw_comp = match comparator {
             Some(p) => Some(RawComparator { ptr: p }),
             None => None,
@@ -95,7 +91,6 @@ impl<K: Key> Database<K> {
             database: RawDB { ptr: database },
             comparator: raw_comp,
             options: options,
-            marker: PhantomData,
         }
     }
 
@@ -103,7 +98,7 @@ impl<K: Key> Database<K> {
     ///
     /// If the database is missing, the behaviour depends on `options.create_if_missing`.
     /// The database will be created using the settings given in `options`.
-    pub fn open(name: &Path, options: Options) -> Result<Database<K>, Error> {
+    pub fn open(name: &Path, options: Options) -> Result<Database, Error> {
         let mut error = ptr::null_mut();
         let res = unsafe {
             let c_string = CString::new(name.to_str().unwrap()).unwrap();
@@ -130,10 +125,10 @@ impl<K: Key> Database<K> {
     /// The comparator must implement a total ordering over the keyspace.
     ///
     /// For keys that implement Ord, consider the `OrdComparator`.
-    pub fn open_with_comparator<C: Comparator<K = K>>(name: &Path,
-                                                      options: Options,
-                                                      comparator: C)
-                                                      -> Result<Database<K>, Error> {
+    pub fn open_with_comparator<C: Comparator>(name: &Path,
+                                               options: Options,
+                                               comparator: C)
+                                               -> Result<Database, Error> {
         let mut error = ptr::null_mut();
         let comp_ptr = create_comparator(Box::new(comparator));
         let res = unsafe {

@@ -7,14 +7,14 @@ mod compaction {
     fn test_iterator_from_to() {
         let tmp = tmpdir("compact");
         let database = &mut open_database(tmp.path(), true);
-        db_put_simple(database, 1, &[1]);
-        db_put_simple(database, 2, &[2]);
-        db_put_simple(database, 3, &[3]);
-        db_put_simple(database, 4, &[4]);
-        db_put_simple(database, 5, &[5]);
+        db_put_simple(database, b"1", &[1]);
+        db_put_simple(database, b"2", &[2]);
+        db_put_simple(database, b"3", &[3]);
+        db_put_simple(database, b"4", &[4]);
+        db_put_simple(database, b"5", &[5]);
 
-        let from = 2;
-        let to = 4;
-        database.compact(&from, &to);
+        let from = b"2";
+        let to = b"4";
+        database.compact(from, to);
     }
 }
