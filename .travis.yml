@@ -1,8 +1,18 @@
 language: rust
+dist: trusty
+
 rust:
-  - 1.1.0
+  - stable
   - nightly
 matrix:
   allow_failures:
     - rust: nightly
+
 sudo: false
+addons:
+  apt:
+    packages:
+    - libleveldb-dev
+
+env:
+- LEVELDB_LIB_DIR=/usr/lib/x86_64-linux-gnu

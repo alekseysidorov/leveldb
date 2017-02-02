@@ -22,7 +22,7 @@ libc = "0.2"
 
 [dependencies.leveldb-sys]
 git = "https://github.com/alekseysidorov/leveldb-sys.git"
-rev = "0623903"
+rev = "de2b7d0ba893f96d957070ecb6efd8a84acc27fb"
 
 [dev-dependencies]
 tempdir = "0.3"
